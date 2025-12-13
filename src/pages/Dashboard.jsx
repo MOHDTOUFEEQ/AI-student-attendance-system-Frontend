@@ -4,7 +4,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContai
 
 export default function Dashboard() {
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState("Data Communication");
+  const [selectedSubject, setSelectedSubject] = useState("Applied Software Engineering");
   const [summary, setSummary] = useState(null);
   const [chartData, setChartData] = useState([]);
   const [logs, setLogs] = useState([]);
