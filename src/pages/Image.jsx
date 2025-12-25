@@ -4,6 +4,14 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 function Image() {
      const [file, setFile] = useState(null);
@@ -17,6 +25,8 @@ function Image() {
   const [moduleName, setModuleName] = useState("");
   const [lectureName, setLectureName] = useState("");
   const [totalExpected, setTotalExpected] = useState();
+  const [consentModalOpen, setConsentModalOpen] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   const handleUpload = (e) => {
     const selected = e.target.files[0];
@@ -68,6 +78,32 @@ function Image() {
 
     setLoading(false);
     setTimeout(() => setAnimate(false), 1500); // stop animation after 1.5s
+  };
+
+  const handleSubmitClick = () => {
+    // Show consent modal instead of directly submitting
+    setConsentModalOpen(true);
+    setConsentChecked(false); // Reset checkbox when modal opens
+  };
+
+  const handleConsentAgree = () => {
+    if (consentChecked) {
+      setConsentModalOpen(false);
+      handlePredict();
+    }
+  };
+
+  const handleConsentCancel = () => {
+    setConsentModalOpen(false);
+    setConsentChecked(false);
+  };
+
+  const handleModalOpenChange = (open) => {
+    setConsentModalOpen(open);
+    if (!open) {
+      // Reset checkbox when modal closes (including clicking outside)
+      setConsentChecked(false);
+    }
   };
 
   const fetchLogs = async () => {
@@ -138,7 +174,7 @@ function Image() {
             />
 
             <Button
-              onClick={handlePredict}
+              onClick={handleSubmitClick}
               disabled={loading}
               className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-md transition-all"
             >
@@ -234,6 +270,59 @@ function Image() {
           </div>
         </Card>
       </motion.div>
+
+      {/* Consent Modal */}
+      <Dialog open={consentModalOpen} onOpenChange={handleModalOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>User Consent Agreement</DialogTitle>
+          </DialogHeader>
+          <DialogDescription asChild>
+            <div className="space-y-4 py-4">
+              <p className="text-sm text-gray-700 leading-relaxed">
+                By clicking "I Agree", you confirm that you are voluntarily providing your image for the purpose of attendance monitoring. You acknowledge and consent that your image may be collected, processed, and securely stored in the system database.
+              </p>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                All stored images are encrypted and handled in accordance with applicable data protection laws and institutional privacy policies. The collected data will be used solely for academic and attendance-related purposes and will not be shared with any unauthorized third parties.
+              </p>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                If you do not agree to these terms, please cancel the operation.
+              </p>
+              <div className="flex items-start space-x-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="consent-checkbox"
+                  checked={consentChecked}
+                  onChange={(e) => setConsentChecked(e.target.checked)}
+                  className="mt-1 h-4 w-4 text-black border-gray-300 rounded focus:ring-black cursor-pointer"
+                />
+                <label
+                  htmlFor="consent-checkbox"
+                  className="text-sm text-gray-700 cursor-pointer"
+                >
+                  I have read and agree to the terms above.
+                </label>
+              </div>
+            </div>
+          </DialogDescription>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleConsentCancel}
+              className="border-gray-300 hover:bg-gray-100"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConsentAgree}
+              disabled={!consentChecked}
+              className="bg-black hover:bg-gray-800 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              I Agree
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
